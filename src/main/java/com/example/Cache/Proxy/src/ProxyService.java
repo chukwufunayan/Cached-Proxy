@@ -1,9 +1,12 @@
 package com.example.Cache.Proxy.src;
+import com.example.Cache.Proxy.src.Constant.RequestMethod;
 
+import com.example.Cache.Proxy.WebRequestService;
 import com.example.Cache.Proxy.src.Dto.ProxyRequestDto;
 import com.example.Cache.Proxy.src.Dto.ProxyResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ServerErrorException;
 
 import java.util.Optional;
 
@@ -12,19 +15,41 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProxyService {
 
-    final ProxyResponseDto proxyResponseDto;
     final Cache cache;
 
-    public ProxyResponseDto process(ProxyRequestDto proxyRequestDto){
+    public ProxyResponseDto process(ProxyRequestDto proxyRequestDto) throws Exception {
+        final String requestMethod = proxyRequestDto.getMethod().toUpperCase();
+        final String requestUrl = proxyRequestDto.getUrl();
+        final String requestBody = (proxyRequestDto.getRequestBody() != null ? proxyRequestDto.getRequestBody() : "");
+        final String cacheKey;
 
-        Optional<ProxyResponseDto> cachedResponse = cache.getCachedValue(proxyRequestDto.getUrl());
+        if (!RequestMethod.requestMethodMap.containsKey(requestMethod)){
+            throw new Exception("only Get request method are allowed");
+        }
 
-        return cachedResponse.orElse(processRequest(proxyRequestDto.getUrl()));
+        cacheKey = requestMethod + requestUrl + requestBody;
+
+        Optional<ProxyResponseDto> cachedResponse = cache.getCachedValue(cacheKey);
+
+      if(cachedResponse.isEmpty()){
+          return processRequest(proxyRequestDto, cacheKey);
+      }
+      return cachedResponse.get();
     }
 
-    private ProxyResponseDto processRequest(String url) {
-        //get url response then set cache
+    private ProxyResponseDto processRequest(ProxyRequestDto proxyRequestDto, String cacheKey) throws Exception {
+        System.out.println("processing Request");
+       try {
+           ProxyResponseDto requestResponse = WebRequestService.processRequest(proxyRequestDto.getUrl());
 
-        return null;
+           if(requestResponse.getResponseCode() == 200)
+               cache.setCachedValue(cacheKey,requestResponse);
+
+           return requestResponse;
+        }
+       catch (Exception e){
+           System.out.println("Error occurred while processing request: " + e.getMessage());
+           throw new Exception(e);
+       }
     }
 }

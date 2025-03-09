@@ -11,10 +11,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Component
 public class Cache {
-
-    //todo: move to an enum or constant
     private final long MAX_TIME_LIMIT = 60000;
-    private final ProxyResponseDto proxyResponseDto;
     private final HashMap<String,ProxyResponseDto> cache = new HashMap<>();
 
 
@@ -24,13 +21,18 @@ public class Cache {
 
         if(cachedValue.isPresent()){
 
-           if(now() - cachedValue.get().getTimeStamp() > MAX_TIME_LIMIT){
+           long cachedTimeLength = (now() - cachedValue.get().getTimeStamp());
+           if(cachedTimeLength > MAX_TIME_LIMIT){
                cache.remove(key);
                return Optional.empty();
            }
         }
 
         return cachedValue;
+    }
+
+    public void setCachedValue(String key,ProxyResponseDto proxyResponseDto){
+        cache.put(key,proxyResponseDto);
     }
 
 

@@ -1,22 +1,18 @@
 package com.example.Cache.Proxy.src.Dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
 @Getter
 @Setter
-@Component
+@AllArgsConstructor
 public class ProxyResponseDto {
-
+    @NonNull
+    private int responseCode;
     @NonNull
     private String response;
+    @JsonIgnore
     private long timeStamp;
-
-    public ProxyResponseDto of(String response, long timeStamp){
-        ProxyResponseDto proxyResponseDto = new ProxyResponseDto();
-        proxyResponseDto.setResponse(response);
-        proxyResponseDto.setTimeStamp(timeStamp);
-        return proxyResponseDto;
-    }
 
 }

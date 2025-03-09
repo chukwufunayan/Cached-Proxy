@@ -5,8 +5,10 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Setter
-@Component
 public class ProxyRequestDto {
      @NonNull
+     private String method;
+     @NonNull
      private String url;
+     private String requestBody;
 }
