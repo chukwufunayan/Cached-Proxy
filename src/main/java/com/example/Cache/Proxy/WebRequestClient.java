@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 //todo: add postProxyRequest logic
-public class WebRequestService {
+public class WebRequestClient {
 
    public static ProxyResponseDto processRequest(String url) throws Exception {
        return getProxyRequest(url);
